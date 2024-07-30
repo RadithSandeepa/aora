@@ -1,13 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react';
-import {Slot } from 'expo-router';
+import {Slo, Stack } from 'expo-router';
 
 const RootLayout = () => {
   return (
-    <Slot />
+    <Stack>
+      <Stack.Screen name="index" options={{ headerShown:false }} />
+    </Stack>
+    
   )
 }
 
 export default RootLayout;
 
- 
