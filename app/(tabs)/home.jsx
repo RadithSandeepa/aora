@@ -1,17 +1,33 @@
-import { View, Text, FlatList, Image } from 'react-native'
-import React from 'react'
+import { View, Text, FlatList, Image, RefreshControl } from 'react-native'
+import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '../../constants'
 import SearchInput from '../../components/SearchInput'
+import Trending from '../../components/Trending'
+import EmptyState from '../../components/EmptyState'
+import { getAllPosts } from '../../lib/appwrite'
+import useAppWrite from '../../lib/useAppWrite'
+import VideoCard from '../../components/VideoCard'
 
 const Home = () => {
+
+  const { data: posts, reFetch } = useAppWrite(getAllPosts);
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await reFetch();
+    setRefreshing(false);
+  }
+
   return (
-    <SafeAreaView className="bg-primary">
+    <SafeAreaView className="bg-primary h-full">
       <FlatList 
-        data={[{ id: 1 },{ id: 2 },{ id: 3 },{ id: 4 }]}
+        data={posts}
         keyExtractor={(item) => item.$id}
         renderItem={({item}) => (
-          <Text className="text-3xl text-white">{item.id}</Text>
+          <VideoCard video={item} />
         )}
         ListHeaderComponent={ ()=> (
           <View className="my-6 px-4 space-y-6">
@@ -33,8 +49,22 @@ const Home = () => {
               </View>
             </View>
             <SearchInput />
+
+            <View className="w-full flex-1 pt-5 pb-8">
+              <Text className="text-gray-100 text-lg font-pregular mb-3">
+                Latest Videos
+              </Text>
+              <Trending posts={[{id:1},{id:2},{id:3}] ?? []}/>
+            </View>
           </View>
         )}
+        ListEmptyComponent={() => (
+          <EmptyState 
+            title="No Videos Found"
+            subtitle="Be the first one to upload a video"
+          />
+        )}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}
       />
     </SafeAreaView >
   )
